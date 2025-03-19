@@ -10,16 +10,26 @@ import { FirestoreService } from '../../services/firestore.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './query.component.html',
   styleUrls: ['./query.component.css']
-})export class QueryComponent implements OnInit {
+})
+export class QueryComponent implements OnInit {
   queryText: string = '';
   responseText: string = '';
   commentText: string = '';
-  // Remove queryId used for comments; use activeQueryId for the selected query
   activeQueryId: string | null = null;
   comments: string[] = [];
   loading: boolean = false;
-  // Remove global showCommentBox; we'll use activeQueryId to conditionally show the comment section
   sessionQueries: { query: string; response: string; id: string; comments?: string[] }[] = [];
+
+  defaultMessage: string = "Welcome! Please type your query in the input box below.";
+  defaultQueries: { query: string; response: string; id: string; comments?: string[] }[] = [
+    {
+      id: 'default1',
+      query: 'How do I use this system?',
+      response: 'Type your query in the box below and click "Send" to see the response.',
+      comments: []
+    }
+  ];
+  firstQuerySent: boolean = false;
 
   constructor(private firestoreService: FirestoreService) {}
 
@@ -27,6 +37,11 @@ import { FirestoreService } from '../../services/firestore.service';
     const storedQueries = sessionStorage.getItem('sessionQueries');
     if (storedQueries) {
       this.sessionQueries = JSON.parse(storedQueries);
+      if (this.sessionQueries.length > 0 && this.sessionQueries[0].id !== 'default1') {
+        this.firstQuerySent = true;
+      }
+    } else {
+      this.sessionQueries = this.defaultQueries;
     }
   }
 
@@ -38,17 +53,21 @@ import { FirestoreService } from '../../services/firestore.service';
 
     try {
       const userQuery = this.queryText;
+      // If this is the first real query, clear defaults.
+      if (!this.firstQuerySent) {
+        this.sessionQueries = [];
+        this.firstQuerySent = true;
+      }
+      // Send query to the backend
       const response = await axios.post("https://windows-49xt.onrender.com/query", { query: userQuery });
       const formattedResponse = this.formatResponse(response.data.response);
       this.animateText(formattedResponse);
       this.queryText = '';
 
-      // Save query in Firestore
+      // Save query and response in Firestore
       const docId = await this.firestoreService.saveQuery(userQuery, formattedResponse);
-      // Reset local comments for new query
-      this.comments = [];
 
-      // Add the new query to session storage
+      // Add the new query to sessionQueries and update sessionStorage
       this.sessionQueries.push({ query: userQuery, response: formattedResponse, id: docId });
       sessionStorage.setItem('sessionQueries', JSON.stringify(this.sessionQueries));
     } catch (error) {
@@ -59,10 +78,9 @@ import { FirestoreService } from '../../services/firestore.service';
     }
   }
 
-  // Sets the active query for commenting. Toggle off if already selected.
+  // Toggle the active query for adding a comment
   setActiveQuery(queryId: string) {
     this.activeQueryId = this.activeQueryId === queryId ? null : queryId;
-    // Optionally clear previous comment input when switching queries.
     this.commentText = '';
   }
 
@@ -71,7 +89,7 @@ import { FirestoreService } from '../../services/firestore.service';
 
     try {
       await this.firestoreService.addComment(this.activeQueryId, this.commentText);
-      // Update the session query that matches the active query
+      // Update sessionQueries for the active query
       const queryIndex = this.sessionQueries.findIndex(q => q.id === this.activeQueryId);
       if (queryIndex !== -1) {
         if (!this.sessionQueries[queryIndex].comments) {
@@ -100,7 +118,6 @@ import { FirestoreService } from '../../services/firestore.service';
     this.responseText = '';
     const words = text.split(' ');
     let index = 0;
-
     const interval = setInterval(() => {
       if (index < words.length) {
         this.responseText += words[index] + ' ';

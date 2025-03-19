@@ -1,25 +1,25 @@
 .query-container {
-    max-width: 900px;
+    max-width: 60%;
     margin: auto;
     text-align: center;
-    padding: 20px;
+    padding-right: 20px;
+    padding-left: 20px;
+    padding-top: 20px;
     background: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    padding-bottom: 80px;
-    /* Removed min-height & padding-bottom from here so that .queries-list handles scrolling */
 }
 
 /* Scrollable area for queries */
 .queries-list {
-    padding: 20px;
+    /* padding: 10px; */
     overflow-y: auto;
-    max-height: calc(100vh - 150px); /* Adjust based on header and input-box heights */
+    max-height: calc(90vh - 160px); /* Adjust based on header and input-box heights */
 }
 
-/* Input box fixed at bottom */
+/* Fixed Input Box */
 .input-box {
     position: fixed;
     bottom: 0;
@@ -27,14 +27,17 @@
     transform: translateX(-50%);
     display: flex;
     gap: 10px;
-    width: 80%;
+    width: 60%;
+    height: 50px;
     background: white;
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+    padding-bottom: 20px;
+    /* margin-bottom: 20px; */
 }
 
-/* Query and comment input fields */
+/* Query and Comment Input Fields */
 .query-input, .comment-input {
     flex: 1;
     padding: 10px;
@@ -69,7 +72,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Add Comment button */
+/* Add Comment Button */
 .comment-btn {
     position: absolute;
     top: 10px;
@@ -105,22 +108,13 @@
 /* Comment Section */
 .comment-section {
     display: flex;
-    align-items: center; /* Align text and button */
+    align-items: center;
     justify-content: space-between;
     gap: 10px;
     background: #f8f9fa;
     padding: 10px;
     border-radius: 8px;
     margin-top: 10px;
-}
-
-/* Style for Comment Input */
-.comment-input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
 }
 
 /* Comment List */
@@ -137,4 +131,11 @@
     margin-top: 10px;
     font-weight: bold;
     color: #007bff;
+}
+
+/* Welcome Message */
+.welcome-message {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 20px;
 }

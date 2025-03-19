@@ -1,16 +1,21 @@
 <div class="query-container">
   <h2>🔍 AI Query System</h2>
 
-  <!-- Scrollable Query List -->
+  <!-- Scrollable Queries List -->
   <div class="queries-list">
-    <!-- Loop through session queries -->
+    <!-- Welcome Message (only shows if no query has been sent) -->
+    <div *ngIf="!firstQuerySent" class="welcome-message">
+      <p>{{ defaultMessage }}</p>
+    </div>
+
+    <!-- Display All Session Queries and Responses -->
     <div *ngFor="let sessionQuery of sessionQueries" class="response-box">
       <h3>🔹 Your Query:</h3>
       <p>{{ sessionQuery.query }}</p>
       <h3>🤖 AI Response:</h3>
       <p [innerHTML]="sessionQuery.response"></p>
 
-      <!-- Display existing comments if any -->
+      <!-- Display Existing Comments (if any) -->
       <div *ngIf="sessionQuery.comments && sessionQuery.comments.length > 0" class="comment-list">
         <h3>📌 Comments:</h3>
         <ul>
@@ -18,7 +23,7 @@
         </ul>
       </div>
 
-      <!-- Button to reveal comment section for THIS query -->
+      <!-- Button to reveal comment section for this query -->
       <button class="comment-btn" (click)="setActiveQuery(sessionQuery.id)">💬 Add Comment</button>
 
       <!-- Comment Section shown directly under the query block -->
@@ -29,7 +34,7 @@
       </div>
     </div>
 
-    <!-- Loading indicator placed at the bottom of the query list -->
+    <!-- Loading indicator at the bottom of the queries list -->
     <div *ngIf="loading" class="loading-spinner">⏳ Loading...</div>
   </div>
 </div>
