@@ -1,0 +1,23 @@
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    background: #007bff;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-link {
+    text-decoration: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out;
+  }
+
+  .nav-link:hover, .active-link {
+    background: rgba(255, 255, 255, 0.2);
+  }

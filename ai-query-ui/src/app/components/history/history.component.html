@@ -1,0 +1,18 @@
+<div class="history-container">
+  <h2>📜 Query History</h2>
+
+  <ul>
+    <li *ngFor="let query of queryHistory">
+      <strong>🔍 Query:</strong> {{ query.query }} <br>
+      <strong>🤖 Response:</strong>
+      <p [innerHTML]="query.response"></p>
+
+      <div *ngIf="query.comments.length > 0">
+        <strong>📝 Comments:</strong>
+        <ul>
+          <li *ngFor="let comment of query.comments">- {{ comment }}</li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+</div>
