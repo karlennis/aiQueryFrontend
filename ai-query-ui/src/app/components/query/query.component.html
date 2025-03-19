@@ -1,37 +1,41 @@
 <div class="query-container">
-    <h2>🔍 AI Query System</h2>
+  <h2>🔍 AI Query System</h2>
 
-    <!-- Query Input Box -->
-    <div class="input-box">
-      <input [(ngModel)]="queryText" placeholder="Enter your query..." class="query-input"/>
-      <button (click)="sendQuery()" class="send-btn">Send</button>
-    </div>
-
-    <!-- Loading Indicator -->
-    <div *ngIf="loading" class="loading-spinner">⏳ Loading...</div>
-
-    <!-- AI Response -->
-    <div *ngIf="responseText" class="response-box">
+  <!-- Scrollable Query List -->
+  <div class="queries-list">
+    <!-- Loop through session queries -->
+    <div *ngFor="let sessionQuery of sessionQueries" class="response-box">
+      <h3>🔹 Your Query:</h3>
+      <p>{{ sessionQuery.query }}</p>
       <h3>🤖 AI Response:</h3>
-      <p [innerHTML]="responseText"></p> <!-- Properly renders indentation -->
+      <p [innerHTML]="sessionQuery.response"></p>
 
-      <!-- Comment Button (Visible on Hover) -->
-      <button class="comment-btn" (click)="toggleComment()" *ngIf="queryId">💬 Add Comment</button>
+      <!-- Display existing comments if any -->
+      <div *ngIf="sessionQuery.comments && sessionQuery.comments.length > 0" class="comment-list">
+        <h3>📌 Comments:</h3>
+        <ul>
+          <li *ngFor="let comment of sessionQuery.comments">📝 {{ comment }}</li>
+        </ul>
+      </div>
+
+      <!-- Button to reveal comment section for THIS query -->
+      <button class="comment-btn" (click)="setActiveQuery(sessionQuery.id)">💬 Add Comment</button>
+
+      <!-- Comment Section shown directly under the query block -->
+      <div *ngIf="activeQueryId === sessionQuery.id" class="comment-section">
+        <h3>📝 Add Comment</h3>
+        <input [(ngModel)]="commentText" placeholder="Enter your comment..." class="comment-input" />
+        <button (click)="addComment()" class="submit-comment-btn">Submit</button>
+      </div>
     </div>
 
-  <!-- Comment Section (Only Visible When Activated) -->
-  <div *ngIf="showCommentBox" class="comment-section">
-    <h3>📝 Add Comment</h3>
-    <input [(ngModel)]="commentText" placeholder="Enter your comment..." class="comment-input"/>
-    <button (click)="addComment()" class="submit-comment-btn">Submit</button>
+    <!-- Loading indicator placed at the bottom of the query list -->
+    <div *ngIf="loading" class="loading-spinner">⏳ Loading...</div>
   </div>
+</div>
 
-
-    <!-- Comment List (Only in History Page) -->
-    <div *ngIf="comments.length > 0" class="comment-list">
-      <h3>📌 Comments:</h3>
-      <ul>
-        <li *ngFor="let comment of comments">📝 {{ comment }}</li>
-      </ul>
-    </div>
+<!-- Fixed Input Box at the Bottom -->
+<div class="input-box">
+  <input [(ngModel)]="queryText" placeholder="Enter your query..." class="query-input" />
+  <button (click)="sendQuery()" class="send-btn">Send</button>
 </div>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import axios from 'axios';
@@ -10,41 +10,47 @@ import { FirestoreService } from '../../services/firestore.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './query.component.html',
   styleUrls: ['./query.component.css']
-})
-export class QueryComponent {
+})export class QueryComponent implements OnInit {
   queryText: string = '';
   responseText: string = '';
   commentText: string = '';
-  queryId: string | null = null;
+  // Remove queryId used for comments; use activeQueryId for the selected query
+  activeQueryId: string | null = null;
   comments: string[] = [];
   loading: boolean = false;
-  showCommentBox: boolean = false; // ✅ Controls comment box visibility
+  // Remove global showCommentBox; we'll use activeQueryId to conditionally show the comment section
+  sessionQueries: { query: string; response: string; id: string; comments?: string[] }[] = [];
 
   constructor(private firestoreService: FirestoreService) {}
+
+  ngOnInit() {
+    const storedQueries = sessionStorage.getItem('sessionQueries');
+    if (storedQueries) {
+      this.sessionQueries = JSON.parse(storedQueries);
+    }
+  }
 
   async sendQuery() {
     if (!this.queryText) return;
 
     this.loading = true;
     this.responseText = '';
-    this.queryId = null; // Reset previous query ID
 
     try {
-      console.log("📤 Sending Query:", this.queryText);
-      const userQuery = this.queryText; // ✅ Store query before clearing input
-
-      const response = await axios.post("http://127.0.0.1:5000/query", { query: this.queryText });
-
+      const userQuery = this.queryText;
+      const response = await axios.post("https://windows-49xt.onrender.com/query", { query: userQuery });
       const formattedResponse = this.formatResponse(response.data.response);
       this.animateText(formattedResponse);
       this.queryText = '';
 
-
+      // Save query in Firestore
       const docId = await this.firestoreService.saveQuery(userQuery, formattedResponse);
-      this.queryId = docId;
+      // Reset local comments for new query
       this.comments = [];
 
-      console.log("✅ Query Saved:", { id: this.queryId, query: userQuery, response: formattedResponse });
+      // Add the new query to session storage
+      this.sessionQueries.push({ query: userQuery, response: formattedResponse, id: docId });
+      sessionStorage.setItem('sessionQueries', JSON.stringify(this.sessionQueries));
     } catch (error) {
       console.error("🔥 Error in sendQuery:", error);
       this.responseText = '⚠️ Error fetching data.';
@@ -53,6 +59,35 @@ export class QueryComponent {
     }
   }
 
+  // Sets the active query for commenting. Toggle off if already selected.
+  setActiveQuery(queryId: string) {
+    this.activeQueryId = this.activeQueryId === queryId ? null : queryId;
+    // Optionally clear previous comment input when switching queries.
+    this.commentText = '';
+  }
+
+  async addComment() {
+    if (!this.commentText || !this.activeQueryId) return;
+
+    try {
+      await this.firestoreService.addComment(this.activeQueryId, this.commentText);
+      // Update the session query that matches the active query
+      const queryIndex = this.sessionQueries.findIndex(q => q.id === this.activeQueryId);
+      if (queryIndex !== -1) {
+        if (!this.sessionQueries[queryIndex].comments) {
+          this.sessionQueries[queryIndex].comments = [];
+        }
+        this.sessionQueries[queryIndex].comments!.push(this.commentText);
+        sessionStorage.setItem('sessionQueries', JSON.stringify(this.sessionQueries));
+      }
+      console.log(`📌 Comment Added to Query ${this.activeQueryId}:`, this.commentText);
+      this.commentText = '';
+      // Optionally close the comment section after adding a comment:
+      // this.activeQueryId = null;
+    } catch (error) {
+      console.error("🔥 Error adding comment:", error);
+    }
+  }
 
   formatResponse(text: string): string {
     return text
@@ -61,7 +96,6 @@ export class QueryComponent {
       .replace(/  /g, '&nbsp;&nbsp;');
   }
 
-  // Function to animate text printing one word at a time
   animateText(text: string) {
     this.responseText = '';
     const words = text.split(' ');
@@ -75,23 +109,5 @@ export class QueryComponent {
         clearInterval(interval);
       }
     }, 100);
-  }
-
-  toggleComment() {
-    this.showCommentBox = !this.showCommentBox;
-  }
-
-  // Add Comment to the Specific Query
-  async addComment() {
-    if (!this.commentText || !this.queryId) return;
-
-    try {
-      await this.firestoreService.addComment(this.queryId, this.commentText);
-      this.comments.push(this.commentText);
-      console.log(`📌 Comment Added to Query ${this.queryId}:`, this.commentText);
-      this.commentText = '';
-    } catch (error) {
-      console.error("🔥 Error adding comment:", error);
-    }
   }
 }
