@@ -2,7 +2,8 @@
   <h2>📜 Query History</h2>
 
   <ul>
-    <li *ngFor="let query of queryHistory">
+    <!-- Apply 'history-entry' class to each item for styling -->
+    <li class="history-entry" *ngFor="let query of queryHistory">
       <strong>🔍 Query:</strong> {{ query.query }} <br>
       <strong>🤖 Response:</strong>
       <p [innerHTML]="query.response"></p>

@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  HostListener
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import axios from 'axios';
@@ -13,6 +19,7 @@ import { FirestoreService } from '../../services/firestore.service';
 })
 export class QueryComponent implements OnInit {
   queryText: string = '';
+  autoPrefixEnabled: boolean = true; // Toggle for automatic prefix
   responseText: string = '';
   commentText: string = '';
   activeQueryId: string | null = null;
@@ -31,6 +38,9 @@ export class QueryComponent implements OnInit {
   ];
   firstQuerySent: boolean = false;
 
+  // Reference to the comment popup in the template
+  @ViewChild('commentPopup', { static: false }) commentPopup?: ElementRef;
+
   constructor(private firestoreService: FirestoreService) {}
 
   ngOnInit() {
@@ -45,6 +55,25 @@ export class QueryComponent implements OnInit {
     }
   }
 
+  @HostListener('document:click', ['$event.target'])
+  onDocumentClick(target: HTMLElement) {
+    // If no popup is open, do nothing
+    if (!this.activeQueryId) return;
+
+    // If clicked inside the popup, do nothing
+    if (this.commentPopup && this.commentPopup.nativeElement.contains(target)) {
+      return;
+    }
+
+    // If clicked on a comment button, do nothing (the button toggles itself)
+    if (target.closest('.comment-btn')) {
+      return;
+    }
+
+    // Otherwise, close the popup
+    this.activeQueryId = null;
+  }
+
   async sendQuery() {
     if (!this.queryText) return;
 
@@ -52,12 +81,18 @@ export class QueryComponent implements OnInit {
     this.responseText = '';
 
     try {
-      const userQuery = this.queryText;
-      // If this is the first real query, clear defaults.
+      let userQuery = this.queryText;
+      // Automatically add "report:" prefix if toggle is enabled and missing
+      if (this.autoPrefixEnabled && !userQuery.trim().toLowerCase().startsWith('report:')) {
+        userQuery = 'report: ' + userQuery;
+      }
+
+      // Clear default queries on first real query
       if (!this.firstQuerySent) {
         this.sessionQueries = [];
         this.firstQuerySent = true;
       }
+
       // Send query to the backend
       const response = await axios.post("https://windows-49xt.onrender.com/query", { query: userQuery });
       const formattedResponse = this.formatResponse(response.data.response);
@@ -67,7 +102,7 @@ export class QueryComponent implements OnInit {
       // Save query and response in Firestore
       const docId = await this.firestoreService.saveQuery(userQuery, formattedResponse);
 
-      // Add the new query to sessionQueries and update sessionStorage
+      // Update sessionQueries and sessionStorage
       this.sessionQueries.push({ query: userQuery, response: formattedResponse, id: docId });
       sessionStorage.setItem('sessionQueries', JSON.stringify(this.sessionQueries));
     } catch (error) {
@@ -80,7 +115,8 @@ export class QueryComponent implements OnInit {
 
   // Toggle the active query for adding a comment
   setActiveQuery(queryId: string) {
-    this.activeQueryId = this.activeQueryId === queryId ? null : queryId;
+    // If clicking the same query again, turn it off; else, set it active
+    this.activeQueryId = (this.activeQueryId === queryId) ? null : queryId;
     this.commentText = '';
   }
 
@@ -89,7 +125,7 @@ export class QueryComponent implements OnInit {
 
     try {
       await this.firestoreService.addComment(this.activeQueryId, this.commentText);
-      // Update sessionQueries for the active query
+      // Update the sessionQueries for the active query
       const queryIndex = this.sessionQueries.findIndex(q => q.id === this.activeQueryId);
       if (queryIndex !== -1) {
         if (!this.sessionQueries[queryIndex].comments) {
@@ -100,7 +136,7 @@ export class QueryComponent implements OnInit {
       }
       console.log(`📌 Comment Added to Query ${this.activeQueryId}:`, this.commentText);
       this.commentText = '';
-      // Optionally close the comment section after adding a comment:
+      // Optionally close popup after comment
       // this.activeQueryId = null;
     } catch (error) {
       console.error("🔥 Error adding comment:", error);
