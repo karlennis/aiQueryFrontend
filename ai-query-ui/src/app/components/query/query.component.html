@@ -14,18 +14,18 @@
     </label>
   </div>
 
-  <!-- Open Filters Button if 'useApi' is true -->
+
   <button class="open-filter-btn" *ngIf="useApi" (click)="showApiModal = true">
     🎯 Edit API Filters
   </button>
 
-  <!-- Param Summary if we are using the API -->
+
   <div *ngIf="useApi && apiParamSummary" class="api-summary">
     <h4>Current API Parameters:</h4>
     <p>{{ apiParamSummary }}</p>
   </div>
 
-  <!-- API Filters Modal Overlay -->
+
   <div class="api-modal-overlay" *ngIf="showApiModal">
     <div class="api-modal">
       <h2>📋 Apply API Filters</h2>
@@ -39,7 +39,7 @@
         </option>
       </select>
 
-      <!-- Subcategory -->
+
       <label>Subcategory:</label>
       <select [(ngModel)]="selectedSubcategory">
         <option [ngValue]="null">-- Select Subcategory --</option>
@@ -53,7 +53,7 @@
         </ng-container>
       </select>
 
-      <!-- County -->
+
       <label>County:</label>
       <select [(ngModel)]="selectedCounty">
         <option [ngValue]="null">-- Select County --</option>
@@ -62,7 +62,7 @@
         </option>
       </select>
 
-      <!-- Stage -->
+
       <label>Stage:</label>
       <select [(ngModel)]="selectedStage">
         <option [ngValue]="null">-- Select Stage --</option>
@@ -71,7 +71,6 @@
         </option>
       </select>
 
-      <!-- Type -->
       <label>Type:</label>
       <select [(ngModel)]="selectedType">
         <option [ngValue]="null">-- Select Type --</option>
@@ -80,7 +79,7 @@
         </option>
       </select>
 
-      <!-- Modal Buttons -->
+
       <div class="modal-buttons">
         <button (click)="applyFilters()">✅ Apply</button>
         <button class="close-btn" (click)="showApiModal = false">❌ Cancel</button>
@@ -88,9 +87,9 @@
     </div>
   </div>
 
-  <!-- Existing logic for queries/responses below -->
+
   <div class="queries-list">
-    <!-- If the user hasn't made any real query yet, show a default welcome -->
+
     <div *ngIf="!firstQuerySent" class="welcome-message">
       <p>{{ defaultMessage }}</p>
     </div>
@@ -117,7 +116,7 @@
   </div>
 </div>
 
-<!-- Global comment popup -->
+
 <div *ngIf="activeQueryId" #commentPopup class="global-comment-popup">
   <div class="arrow"></div>
   <h3>📝 Add Comment</h3>

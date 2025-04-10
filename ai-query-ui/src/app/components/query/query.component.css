@@ -122,7 +122,7 @@
 .global-comment-popup {
     position: fixed;
     bottom: 70px; /* Just above the fixed input box */
-    right: 20px;  /* Adjust as desired */
+    right: 20px;
     width: 300px;
     background: #ffffff;
     border: 1px solid #ccc;
@@ -145,7 +145,7 @@
     border-right: 10px solid #ccc;
 }
 
-/* Submit Comment Button */
+
 .submit-comment-btn {
     background: #007bff;
     color: white;
@@ -167,16 +167,13 @@
     color: #007bff;
 }
 
-/* Welcome Message */
+
 .welcome-message {
     font-size: 18px;
     color: #333;
     margin-bottom: 20px;
 }
 
-/* Existing styles above */
-
-/* Modal Overlay */
 .api-modal-overlay {
     position: fixed;
     top: 0;
@@ -267,19 +264,16 @@
     background-color: #138496;
   }
 
-  /* Dropdown container if needed */
+
   .dropdown-group {
     margin-bottom: 20px;
   }
 
-  /* Adjust existing fixed input if overlapping modal */
   .input-box {
     z-index: 100;
   }
 
-  /* Existing styles (e.g., .query-container, .open-filter-btn, etc.) remain */
 
-/* This class is for the summary text area that shows the selected params */
 .api-summary {
     background-color: #faf9f9;
     padding: 10px;
