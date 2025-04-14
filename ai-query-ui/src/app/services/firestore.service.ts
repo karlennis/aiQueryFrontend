@@ -7,7 +7,7 @@ import { Firestore, collection, addDoc, getDocs, doc, updateDoc, arrayUnion, get
 export class FirestoreService {
   constructor(private firestore: Firestore) {}
 
-  // ✅ Save Query + Response and Return Document ID
+
   async saveQuery(query: string, response: string): Promise<string> {
     try {
       console.log("📤 Saving Query:", query); // Debugging log
@@ -20,21 +20,21 @@ export class FirestoreService {
       });
 
       console.log("✅ Query Saved with ID:", docRef.id); // Debugging log
-      return docRef.id; // ✅ Return the document ID as a string
+      return docRef.id;
     } catch (error) {
       console.error('🔥 Error saving query:', error);
       throw error;
     }
   }
 
-  // ✅ Retrieve All Queries for History
+
   async getAllQueries() {
     try {
       const queriesRef = collection(this.firestore, 'queries');
       const querySnapshot = await getDocs(queriesRef);
 
       return querySnapshot.docs.map(docSnap => {
-        const data = docSnap.data() as { [key: string]: any }; // ✅ Ensure it's treated as an object
+        const data = docSnap.data() as { [key: string]: any };
         return {
           id: docSnap.id,
           query: data['query'] || "❌ Missing Query",
@@ -48,7 +48,7 @@ export class FirestoreService {
     }
   }
 
-  // ✅ Add Comment to Query using arrayUnion (Efficient)
+
   async addComment(queryId: string, comment: string) {
     try {
       const queryDocRef = doc(this.firestore, 'queries', queryId);
@@ -61,14 +61,14 @@ export class FirestoreService {
     }
   }
 
-  // ✅ Retrieve Comments for a Specific Query
+
   async getComments(queryId: string): Promise<string[]> {
     try {
       const queryDocRef = doc(this.firestore, 'queries', queryId);
       const docSnap = await getDoc(queryDocRef);
 
       if (docSnap.exists()) {
-        const data = docSnap.data() as { [key: string]: any }; // ✅ Ensure proper type handling
+        const data = docSnap.data() as { [key: string]: any };
         return data['comments'] || [];
       }
       return [];

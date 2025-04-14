@@ -122,7 +122,7 @@
 .global-comment-popup {
     position: fixed;
     bottom: 70px; /* Just above the fixed input box */
-    right: 20px;  /* Adjust as desired */
+    right: 20px;
     width: 300px;
     background: #ffffff;
     border: 1px solid #ccc;
@@ -145,7 +145,7 @@
     border-right: 10px solid #ccc;
 }
 
-/* Submit Comment Button */
+
 .submit-comment-btn {
     background: #007bff;
     color: white;
@@ -167,9 +167,121 @@
     color: #007bff;
 }
 
-/* Welcome Message */
+
 .welcome-message {
     font-size: 18px;
     color: #333;
     margin-bottom: 20px;
 }
+
+.api-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Modal Box */
+  .api-modal {
+    background-color: white;
+    padding: 30px;
+    width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .api-modal h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .api-modal label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .api-modal select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .api-modal .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .api-modal button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .api-modal button:hover {
+    background-color: #0056b3;
+  }
+
+  .api-modal .close-btn {
+    background-color: #6c757d;
+  }
+
+  .api-modal .close-btn:hover {
+    background-color: #5a6268;
+  }
+
+  /* Add Filters Button */
+  .open-filter-btn {
+    margin: 10px 0 20px 0;
+    padding: 10px 20px;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .open-filter-btn:hover {
+    background-color: #138496;
+  }
+
+
+  .dropdown-group {
+    margin-bottom: 20px;
+  }
+
+  .input-box {
+    z-index: 100;
+  }
+
+
+.api-summary {
+    background-color: #faf9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #007bff;
+  }
+
+  .api-summary h4 {
+    margin: 0 0 5px 0;
+    font-weight: 600;
+  }

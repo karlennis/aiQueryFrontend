@@ -1,47 +1,122 @@
 <div class="query-container">
   <h2>🔍 AI Query System</h2>
 
-  <!-- Toggle for Auto Prefix -->
+  <!-- Toggles & Filters -->
   <div class="toggle-container">
-    <label>
+    <label style="margin-right: 20px;">
       <input type="checkbox" [(ngModel)]="autoPrefixEnabled" />
       Auto add "report:" prefix
     </label>
+
+    <label>
+      <input type="checkbox" [(ngModel)]="useApi" (change)="onUseApiChanged()" />
+      Use API
+    </label>
   </div>
 
-  <!-- Scrollable Queries List -->
+
+  <button class="open-filter-btn" *ngIf="useApi" (click)="showApiModal = true">
+    🎯 Edit API Filters
+  </button>
+
+
+  <div *ngIf="useApi && apiParamSummary" class="api-summary">
+    <h4>Current API Parameters:</h4>
+    <p>{{ apiParamSummary }}</p>
+  </div>
+
+
+  <div class="api-modal-overlay" *ngIf="showApiModal">
+    <div class="api-modal">
+      <h2>📋 Apply API Filters</h2>
+
+      <!-- Category -->
+      <label>Category:</label>
+      <select [(ngModel)]="selectedCategory">
+        <option [ngValue]="null">-- Select Category --</option>
+        <option *ngFor="let cat of categories" [ngValue]="cat.id">
+          {{ cat.name }}
+        </option>
+      </select>
+
+
+      <label>Subcategory:</label>
+      <select [(ngModel)]="selectedSubcategory">
+        <option [ngValue]="null">-- Select Subcategory --</option>
+        <ng-container *ngFor="let sc of subCategories">
+          <option
+            *ngIf="!selectedCategory || sc.categoryID === selectedCategory"
+            [ngValue]="sc.id"
+          >
+            {{ sc.name }}
+          </option>
+        </ng-container>
+      </select>
+
+
+      <label>County:</label>
+      <select [(ngModel)]="selectedCounty">
+        <option [ngValue]="null">-- Select County --</option>
+        <option *ngFor="let c of counties" [ngValue]="c.id">
+          {{ c.name }}
+        </option>
+      </select>
+
+
+      <label>Stage:</label>
+      <select [(ngModel)]="selectedStage">
+        <option [ngValue]="null">-- Select Stage --</option>
+        <option *ngFor="let s of stages" [ngValue]="s.id">
+          {{ s.name }}
+        </option>
+      </select>
+
+      <label>Type:</label>
+      <select [(ngModel)]="selectedType">
+        <option [ngValue]="null">-- Select Type --</option>
+        <option *ngFor="let t of types" [ngValue]="t.id">
+          {{ t.name }}
+        </option>
+      </select>
+
+
+      <div class="modal-buttons">
+        <button (click)="applyFilters()">✅ Apply</button>
+        <button class="close-btn" (click)="showApiModal = false">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
   <div class="queries-list">
-    <!-- Welcome Message -->
+
     <div *ngIf="!firstQuerySent" class="welcome-message">
       <p>{{ defaultMessage }}</p>
     </div>
 
-    <!-- Display All Session Queries and Responses -->
+    <!-- Loop over session queries -->
     <div *ngFor="let sessionQuery of sessionQueries" class="response-box">
       <h3>🔹 Your Query:</h3>
       <p>{{ sessionQuery.query }}</p>
       <h3>🤖 AI Response:</h3>
       <p [innerHTML]="sessionQuery.response"></p>
 
-      <!-- Display Existing Comments -->
-      <div *ngIf="sessionQuery.comments && sessionQuery.comments.length > 0" class="comment-list">
+      <!-- Comments if any -->
+      <div *ngIf="sessionQuery.comments?.length" class="comment-list">
         <h3>📌 Comments:</h3>
         <ul>
           <li *ngFor="let comment of sessionQuery.comments">📝 {{ comment }}</li>
         </ul>
       </div>
-
-      <!-- The Add Comment button at bottom-right, shown on hover -->
       <button class="comment-btn" (click)="setActiveQuery(sessionQuery.id)">💬 Add Comment</button>
     </div>
 
-    <!-- Loading Indicator -->
+    <!-- Loading Spinner -->
     <div *ngIf="loading" class="loading-spinner">⏳ Loading...</div>
   </div>
 </div>
 
-<!-- Global Comment Popup (rendered outside the query container) -->
-<!-- Use a template reference for closing on outside clicks -->
+
 <div *ngIf="activeQueryId" #commentPopup class="global-comment-popup">
   <div class="arrow"></div>
   <h3>📝 Add Comment</h3>
