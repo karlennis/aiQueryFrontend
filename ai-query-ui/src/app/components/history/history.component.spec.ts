@@ -11,7 +11,7 @@ describe('HistoryComponent', () => {
       imports: [HistoryComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(HistoryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
