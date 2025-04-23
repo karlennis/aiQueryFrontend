@@ -1,5 +1,6 @@
 <div class="query-container">
   <h2>🔍 AI Query System</h2>
+
   <div class="toggle-container">
     <label style="margin-right:20px;">
       <input type="checkbox" [(ngModel)]="autoPrefixEnabled" />
@@ -10,51 +11,27 @@
       Use API
     </label>
   </div>
-  <button class="open-filter-btn" *ngIf="useApi" (click)="showApiModal = true">🎯 Edit API Filters</button>
+
+  <button class="open-filter-btn" *ngIf="useApi" (click)="showApiModal = true">
+    🎯 Edit API Filters
+  </button>
   <div *ngIf="useApi && apiParamSummary" class="api-summary">
     <h4>Current API Parameters:</h4>
     <p>{{ apiParamSummary }}</p>
   </div>
+
   <div class="api-modal-overlay" *ngIf="showApiModal">
     <div class="api-modal">
       <h2>📋 Apply API Filters</h2>
-      <label>Category:</label>
-      <select [(ngModel)]="selectedCategory">
-        <option [ngValue]="null">-- Select Category --</option>
-        <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
-      </select>
-      <label>Subcategory:</label>
-      <select [(ngModel)]="selectedSubcategory">
-        <option [ngValue]="null">-- Select Subcategory --</option>
-        <ng-container *ngFor="let sc of subCategories">
-          <option *ngIf="!selectedCategory || sc.categoryID === selectedCategory" [ngValue]="sc.id">{{ sc.name }}</option>
-        </ng-container>
-      </select>
-      <label>County:</label>
-      <select [(ngModel)]="selectedCounty">
-        <option [ngValue]="null">-- Select County --</option>
-        <option *ngFor="let c of counties" [ngValue]="c.id">{{ c.name }}</option>
-      </select>
-      <label>Stage:</label>
-      <select [(ngModel)]="selectedStage">
-        <option [ngValue]="null">-- Select Stage --</option>
-        <option *ngFor="let s of stages" [ngValue]="s.id">{{ s.name }}</option>
-      </select>
-      <label>Type:</label>
-      <select [(ngModel)]="selectedType">
-        <option [ngValue]="null">-- Select Type --</option>
-        <option *ngFor="let t of types" [ngValue]="t.id">{{ t.name }}</option>
-      </select>
+      <!-- filters... -->
       <div class="modal-buttons">
         <button (click)="applyFilters()">✅ Apply</button>
         <button class="close-btn" (click)="showApiModal = false">❌ Cancel</button>
       </div>
     </div>
   </div>
+
   <div class="queries-list">
-    <div *ngIf="!firstQuerySent" class="welcome-message">
-      <p>{{ defaultMessage }}</p>
-    </div>
     <div *ngFor="let sq of sessionQueries" class="response-box">
       <h3>🔹 Your Query:</h3>
       <p>{{ sq.query }}</p>
@@ -63,26 +40,38 @@
       <div *ngIf="sq.comments?.length" class="comment-list">
         <h3>📌 Comments:</h3>
         <ul>
-          <li *ngFor="let comm of sq.comments">📝 {{ comm }}</li>
+          <li *ngFor="let c of sq.comments">📝 {{ c }}</li>
         </ul>
       </div>
       <button class="comment-btn" (click)="setActiveQuery(sq.id)">💬 Add Comment</button>
     </div>
     <div *ngIf="loading" class="loading-spinner">⏳ Loading...</div>
   </div>
-  <div *ngIf="isReportResponse">
-    <button (click)="downloadReport()">Download Report</button>
+
+  <div class="view-report-container" *ngIf="isReportResponse">
+    <button class="view-report-btn" (click)="viewReport($event)">
+      📄 View Last Report
+    </button>
+  </div>
+
+  <div class="input-box">
+    <span *ngIf="autoPrefixEnabled" class="query-prefix">report:</span>
+    <input [(ngModel)]="queryText" placeholder="Enter your query..." class="query-input" />
+    <button (click)="sendQuery()" class="send-btn">Send</button>
   </div>
 </div>
-<div id="reportContainer" style="display:none;"></div>
-<div *ngIf="activeQueryId" #commentPopup class="global-comment-popup">
+
+<div class="report-viewer" *ngIf="showReport">
+  <div #reportPanel class="report-panel">
+    <button class="download-btn" (click)="downloadReport()">⬇️</button>
+    <button class="close-btn" (click)="closeReport($event)">✖️</button>
+    <div id="reportContainer" [innerHTML]="reportHtml"></div>
+  </div>
+</div>
+
+<div id="commentPopup" *ngIf="activeQueryId" #commentPopup class="global-comment-popup">
   <div class="arrow"></div>
   <h3>📝 Add Comment</h3>
   <input [(ngModel)]="commentText" placeholder="Enter your comment..." class="comment-input" />
   <button (click)="addComment()" class="submit-comment-btn">Submit</button>
-</div>
-<div class="input-box">
-  <span *ngIf="autoPrefixEnabled" class="query-prefix">report:</span>
-  <input [(ngModel)]="queryText" placeholder="Enter your query..." class="query-input" />
-  <button (click)="sendQuery()" class="send-btn">Send</button>
 </div>

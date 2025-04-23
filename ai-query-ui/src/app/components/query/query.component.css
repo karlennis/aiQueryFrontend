@@ -12,276 +12,144 @@
     margin-bottom: 80px; /* Extra bottom space for the fixed input box */
 }
 
-/* Toggle Container */
-.toggle-container {
-    text-align: left;
-    margin-bottom: 10px;
-    padding: 0 20px;
-    font-size: 14px;
+.toggle-container { text-align: left; margin-bottom: 10px; }
+.open-filter-btn {
+  margin: 10px 0; padding: 10px 20px;
+  background: #17a2b8; color: #fff;
+  border: none; border-radius: 6px; cursor: pointer;
 }
-
-/* Scrollable area for queries */
-.queries-list {
-    overflow-y: auto;
-    max-height: calc(90vh - 160px);
-}
-
-/* Fixed Input Box */
-.input-box {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 60%;
-    height: 50px;
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-    z-index: 100; /* Keep above other elements */
-}
-
-/* Query Prefix Tag */
-.query-prefix {
-    display: flex;
-    align-items: center;
-    padding: 0 8px;
-    font-weight: bold;
-    background-color: #f1f1f1;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-/* Query and Comment Input Fields */
-.query-input, .comment-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-/* Buttons */
-.send-btn, .comment-btn {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background 0.3s ease;
-}
-
-.send-btn:hover, .comment-btn:hover {
-    background: #0056b3;
-}
-
-/* Response Box */
-.response-box {
-    position: relative;
-    margin-top: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    text-align: left;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Hover-based Add Comment Button */
-.comment-btn {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: transparent;
-    color: #007bff;
-    font-size: 14px;
-    padding: 5px;
-    border: none;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.response-box:hover .comment-btn {
-    opacity: 1;
-}
-
-/* Comment List */
-.comment-list {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    text-align: left;
-}
-
-/* Global Comment Popup (outside the query container) */
-.global-comment-popup {
-    position: fixed;
-    bottom: 70px; /* Just above the fixed input box */
-    right: 20px;
-    width: 300px;
-    background: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    z-index: 100;
-}
-
-/* Arrow pointing to the Add Comment button area */
-.global-comment-popup .arrow {
-    position: absolute;
-    top: 50%;
-    left: -10px;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-right: 10px solid #ccc;
-}
-
-
-.submit-comment-btn {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background 0.3s ease;
-}
-
-.submit-comment-btn:hover {
-    background: #0056b3;
-}
-
-/* Loading Indicator */
-.loading-spinner {
-    margin-top: 10px;
-    font-weight: bold;
-    color: #007bff;
-}
-
-
-.welcome-message {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.api-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 200;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Modal Box */
-  .api-modal {
-    background-color: white;
-    padding: 30px;
-    width: 500px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    position: relative;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .api-modal h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .api-modal label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: 500;
-  }
-
-  .api-modal select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-
-  .api-modal .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-
-  .api-modal button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-
-  .api-modal button:hover {
-    background-color: #0056b3;
-  }
-
-  .api-modal .close-btn {
-    background-color: #6c757d;
-  }
-
-  .api-modal .close-btn:hover {
-    background-color: #5a6268;
-  }
-
-  /* Add Filters Button */
-  .open-filter-btn {
-    margin: 10px 0 20px 0;
-    padding: 10px 20px;
-    background-color: #17a2b8;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .open-filter-btn:hover {
-    background-color: #138496;
-  }
-
-
-  .dropdown-group {
-    margin-bottom: 20px;
-  }
-
-  .input-box {
-    z-index: 100;
-  }
-
+.open-filter-btn:hover { background: #138496; }
 
 .api-summary {
-    background-color: #faf9f9;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-left: 4px solid #007bff;
-  }
+  background: #faf9f9; padding: 10px; margin-bottom: 10px;
+  border-left: 4px solid #007bff;
+}
 
-  .api-summary h4 {
-    margin: 0 0 5px 0;
-    font-weight: 600;
-  }
+.queries-list {
+  overflow-y: auto;
+  max-height: calc(90vh - 160px);
+}
+
+.input-box {
+  position: fixed; bottom:0; left:50%;
+  transform: translateX(-50%);
+  display:flex; gap:10px; width:60%; background:#fff;
+  padding:10px; border-radius:10px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+}
+
+.query-prefix {
+  align-self:center; padding:0 8px;
+  background:#f1f1f1; border:1px solid #ccc;
+  border-radius:5px;
+}
+
+.query-input, .comment-input {
+  flex:1; padding:10px;
+  border:1px solid #ccc; border-radius:5px;
+}
+
+.send-btn, .comment-btn, .submit-comment-btn, .close-btn {
+  background:#007bff; color:#fff;
+  border:none; padding:8px 12px;
+  border-radius:5px; cursor:pointer;
+}
+.send-btn:hover, .comment-btn:hover,
+.submit-comment-btn:hover, .close-btn:hover {
+  background:#0056b3;
+}
+
+.response-box {
+  position:relative;
+  margin-top:20px; padding:15px;
+  background:#f8f9fa; border-radius:8px;
+  text-align:left; box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.comment-btn {
+  position:absolute; bottom:10px; right:10px; opacity:0;
+}
+.response-box:hover .comment-btn { opacity:1; }
+
+.comment-list {
+  margin-top:20px; padding:15px;
+  background:#f8f9fa; border-radius:8px;
+}
+
+.loading-spinner {
+  margin-top:10px; font-weight:bold; color:#007bff;
+}
+
+.view-report-container {
+  text-align:right; margin:10px 0;
+}
+.view-report-btn {
+  background:#28a745; color:#fff;
+  border:none; padding:6px 12px;
+  border-radius:4px; cursor:pointer;
+}
+.view-report-btn:hover { background:#218838; }
+
+.api-modal-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(0,0,0,0.5);
+  display:flex; justify-content:center; align-items:center;
+  z-index:9999;
+}
+.api-modal {
+  background:#fff; padding:20px;
+  width:400px; border-radius:8px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  z-index:10000;
+}
+.modal-buttons {
+  display:flex; justify-content:flex-end;
+  gap:10px; margin-top:20px;
+}
+
+.global-comment-popup {
+  position:fixed; bottom:70px; right:20px;
+  width:300px; background:#fff;
+  border:1px solid #ccc; border-radius:6px;
+  padding:10px; box-shadow:0 2px 10px rgba(0,0,0,0.15);
+}
+.global-comment-popup .arrow {
+  position:absolute; top:50%; left:-10px;
+  width:0; height:0;
+  border-top:10px solid transparent;
+  border-bottom:10px solid transparent;
+  border-right:10px solid #ccc;
+}
+
+.report-viewer {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex; justify-content:center; align-items:center;
+  overflow:auto; z-index:1000;
+}
+
+.report-panel {
+  position:relative;
+  background:#fff; padding:20px;
+  max-width:700px; width:100%;
+  max-height:90vh; overflow-y:auto;
+  border-radius:8px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.download-btn, .close-btn {
+  position:absolute; top:10px;
+  background:#007bff; color:#fff;
+  border:none; padding:6px 10px;
+  border-radius:4px; cursor:pointer;
+  opacity:0; transition:opacity .3s;
+}
+
+.report-panel:hover .download-btn,
+.report-panel:hover .close-btn {
+  opacity:1;
+}
+.download-btn { right:40px; }
+.close-btn { right:10px; background:#dc3545; }
+.close-btn:hover { background:#c82333; }
