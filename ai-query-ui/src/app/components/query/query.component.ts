@@ -144,16 +144,31 @@ export class QueryComponent implements OnInit {
         api_params: this.useApi ? this.buildApiParams() : {},
         report: q.toLowerCase().startsWith('report:')
       });
+
       if (res.data.is_report) {
         this.matchCount = res.data.match_count;
-        this.reportData = res.data.projects;
-        this.reportHtml = this.buildReportHtml(this.reportData, this.matchCount);
+
+        // 1) Filter out any rows where both applicant_details and feature_mentions
+        //    indicate "no data"
+        const raw = res.data.projects as any[];
+        const filtered = raw.filter(p =>
+          !/no .* found/i.test(p.applicant_details || '')
+          && !/no .* found/i.test(p.feature_mentions || '')
+        );
+
+        this.reportData = filtered;
+        this.reportHtml = this.buildReportHtml(filtered, this.matchCount);
         this.isReportResponse = true;
         localStorage.setItem('reportHtml', this.reportHtml);
+
       } else {
         this.responseText = this.formatResponse(res.data.response);
       }
-      const docId = await this.firestoreService.saveQuery(q, this.responseText || this.reportHtml);
+
+      const docId = await this.firestoreService.saveQuery(
+        q,
+        this.responseText || this.reportHtml
+      );
       this.sessionQueries.push({
         query: q,
         response: this.responseText || this.reportHtml,
@@ -162,6 +177,7 @@ export class QueryComponent implements OnInit {
       });
       sessionStorage.setItem('sessionQueries', JSON.stringify(this.sessionQueries));
       this.queryText = '';
+
     } catch {
       this.errorText = 'Error fetching data.';
     } finally {
@@ -222,20 +238,32 @@ export class QueryComponent implements OnInit {
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\r?\n/g, '<br>')
       .replace(/^- /gm, '• ');
-    const projectsHtml = data.map(p => `
-      <div class="project">
-        <h2>${p.project_id || 'N/A'}: ${p.planning_title || 'N/A'}</h2>
-        <p><strong>Last Researched:</strong> ${p.planning_public_updated || 'N/A'}</p>
-        <p><strong>Stage:</strong> ${p.planning_stage || 'N/A'}</p>
-        <p><strong>Link:</strong> ${p.planning_urlopen
-          ? `<a href="${p.planning_urlopen}" target="_blank">${p.planning_urlopen}</a>`
-          : 'N/A'}</p>
-        <p><strong>Applicant Details:</strong></p>
-        <div class="mentions">${md(p.applicant_details)}</div>
-        <p><strong>Feature Mentions:</strong></p>
-        <div class="mentions">${md(p.feature_mentions)}</div>
-      </div>
-    `).join('');
+
+    const projectsHtml = data.map(p => {
+      // Only render API metadata if useApi is true
+      const meta = this.useApi
+        ? `
+          <p><strong>Last Researched:</strong> ${p.planning_public_updated || ''}</p>
+          <p><strong>Stage:</strong> ${p.planning_stage || ''}</p>
+          <p><strong>Link:</strong> ${p.planning_urlopen
+            ? `<a href="${p.planning_urlopen}" target="_blank">${p.planning_urlopen}</a>`
+            : ''}
+          </p>
+        `
+        : '';
+
+      return `
+        <div class="project">
+          <h2>${p.project_id}: ${p.planning_title || ''}</h2>
+          ${meta}
+          <p><strong>Applicant Details:</strong></p>
+          <div class="mentions">${md(p.applicant_details)}</div>
+          <p><strong>Feature Mentions:</strong></p>
+          <div class="mentions">${md(p.feature_mentions)}</div>
+        </div>
+      `;
+    }).join('');
+
     return `
       ${style}
       <body>

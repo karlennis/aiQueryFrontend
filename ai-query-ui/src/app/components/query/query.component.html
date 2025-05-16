@@ -15,6 +15,7 @@
   <button class="open-filter-btn" *ngIf="useApi" (click)="showApiModal = true">
     🎯 Edit API Filters
   </button>
+
   <div *ngIf="useApi && apiParamSummary" class="api-summary">
     <h4>Current API Parameters:</h4>
     <p>{{ apiParamSummary }}</p>
@@ -23,7 +24,49 @@
   <div class="api-modal-overlay" *ngIf="showApiModal">
     <div class="api-modal">
       <h2>📋 Apply API Filters</h2>
-      <!-- filters... -->
+
+      <label>Category:</label>
+      <select [(ngModel)]="selectedCategory">
+        <option [ngValue]="null">-- Select Category --</option>
+        <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+      </select>
+
+      <div class="field-row">
+        <div style="flex:1">
+          <label>Subcategory:</label>
+          <select [(ngModel)]="selectedSubcategory">
+            <option [ngValue]="null">-- Select Subcategory --</option>
+            <ng-container *ngFor="let sc of subCategories">
+              <option *ngIf="!selectedCategory || sc.categoryID===selectedCategory" [ngValue]="sc.id">{{ sc.name }}</option>
+            </ng-container>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label>County:</label>
+          <select [(ngModel)]="selectedCounty">
+            <option [ngValue]="null">-- Select County --</option>
+            <option *ngFor="let c of counties" [ngValue]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div style="flex:1">
+          <label>Stage:</label>
+          <select [(ngModel)]="selectedStage">
+            <option [ngValue]="null">-- Select Stage --</option>
+            <option *ngFor="let s of stages" [ngValue]="s.id">{{ s.name }}</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label>Type:</label>
+          <select [(ngModel)]="selectedType">
+            <option [ngValue]="null">-- Select Type --</option>
+            <option *ngFor="let t of types" [ngValue]="t.id">{{ t.name }}</option>
+          </select>
+        </div>
+      </div>
+
       <div class="modal-buttons">
         <button (click)="applyFilters()">✅ Apply</button>
         <button class="close-btn" (click)="showApiModal = false">❌ Cancel</button>
@@ -49,9 +92,7 @@
   </div>
 
   <div class="view-report-container" *ngIf="isReportResponse">
-    <button class="view-report-btn" (click)="viewReport($event)">
-      📄 View Last Report
-    </button>
+    <button class="view-report-btn" (click)="viewReport($event)">📄 View Last Report</button>
   </div>
 
   <div class="input-box">
@@ -64,7 +105,7 @@
 <div class="report-viewer" *ngIf="showReport">
   <div #reportPanel class="report-panel">
     <button class="download-btn" (click)="downloadReport()">⬇️</button>
-    <button class="close-btn" (click)="closeReport($event)">✖️</button>
+    <button class="close-btn" (click)="closeReport()">✖️</button>
     <div id="reportContainer" [innerHTML]="reportHtml"></div>
   </div>
 </div>
