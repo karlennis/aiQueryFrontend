@@ -68,9 +68,11 @@ export class QueryComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const tgt = event.target as HTMLElement;
-    if (this.activeQueryId &&
-        !this.commentPopup?.nativeElement.contains(tgt) &&
-        !tgt.closest('.comment-btn')) {
+    if (
+      this.activeQueryId &&
+      !this.commentPopup?.nativeElement.contains(tgt) &&
+      !tgt.closest('.comment-btn')
+    ) {
       this.activeQueryId = null;
     }
     if (this.showReport && !this.reportPanel?.nativeElement.contains(tgt)) {
@@ -139,7 +141,7 @@ export class QueryComponent implements OnInit {
       if (this.autoPrefixEnabled && !q.toLowerCase().startsWith('report:')) {
         q = 'report: ' + q;
       }
-      const res = await axios.post('http://127.0.0.1:5000/query', {
+      const res = await axios.post('https://windows-49xt.onrender.com/query', {
         search_query: q,
         api_params: this.useApi ? this.buildApiParams() : {},
         report: q.toLowerCase().startsWith('report:')
@@ -147,14 +149,13 @@ export class QueryComponent implements OnInit {
 
       if (res.data.is_report) {
         this.matchCount = res.data.match_count;
-
-        // 1) Filter out any rows where both applicant_details and feature_mentions
-        //    indicate "no data"
         const raw = res.data.projects as any[];
-        const filtered = raw.filter(p =>
-          !/no .* found/i.test(p.applicant_details || '')
-          && !/no .* found/i.test(p.feature_mentions || '')
-        );
+
+        // ** Only drop projects where feature_mentions literally starts with "No mentions found" **
+        const filtered = raw.filter(p => {
+          const fm = (p.feature_mentions || '').toString().trim().toLowerCase();
+          return !fm.startsWith('no mentions found');
+        });
 
         this.reportData = filtered;
         this.reportHtml = this.buildReportHtml(filtered, this.matchCount);
@@ -177,7 +178,6 @@ export class QueryComponent implements OnInit {
       });
       sessionStorage.setItem('sessionQueries', JSON.stringify(this.sessionQueries));
       this.queryText = '';
-
     } catch {
       this.errorText = 'Error fetching data.';
     } finally {
@@ -240,7 +240,6 @@ export class QueryComponent implements OnInit {
       .replace(/^- /gm, '• ');
 
     const projectsHtml = data.map(p => {
-      // Only render API metadata if useApi is true
       const meta = this.useApi
         ? `
           <p><strong>Last Researched:</strong> ${p.planning_public_updated || ''}</p>
