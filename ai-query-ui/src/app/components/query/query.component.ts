@@ -6,7 +6,7 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import { FirestoreService } from '../../services/firestore.service';
 import { DropdownDataService, DropdownItem, SubCategory } from '../../services/dropdown-data.service';
-
+import { DomSanitizer } from '@angular/platform-browser';
 @Component({
   selector: 'app-query',
   standalone: true,
@@ -44,7 +44,8 @@ export class QueryComponent implements OnInit {
 
   constructor(
     private firestoreService: FirestoreService,
-    public dropdownDataService: DropdownDataService
+    public dropdownDataService: DropdownDataService,
+    private sanitizer: DomSanitizer
   ) {}
 
   get categories(): DropdownItem[] { return this.dropdownDataService.categories; }
@@ -158,7 +159,7 @@ export class QueryComponent implements OnInit {
         });
 
         this.reportData = filtered;
-        this.reportHtml = this.buildReportHtml(filtered, this.matchCount);
+        this.reportHtml = this.buildReportHtml(filtered, this.matchCount, this.queryText.trim());
         this.isReportResponse = true;
         localStorage.setItem('reportHtml', this.reportHtml);
 
@@ -196,85 +197,109 @@ export class QueryComponent implements OnInit {
   }
 
   downloadReport(): void {
-    const c = document.createElement('div');
-    c.innerHTML = this.reportHtml;
-    c.style.position = 'absolute';
-    c.style.left = '0';
-    c.style.top = '0';
-    c.style.width = '1500px';
-    document.body.appendChild(c);
+    const tmp = document.createElement('div');
+    tmp.innerHTML = this.reportHtml;
+    tmp.style.position = 'absolute';
+    tmp.style.left = '0';
+    tmp.style.top  = '0';
+    tmp.style.width = '1600px';
+    document.body.appendChild(tmp);
 
     const pdf = new jsPDF('p', 'pt', 'a4');
-    pdf.html(c, {
+    pdf.html(tmp, {
       callback: doc => {
         doc.save('planning_report.pdf');
-        document.body.removeChild(c);
+        document.body.removeChild(tmp);
       },
       x: 10, y: 10,
-      margin: [10,10,10,10],
-      windowWidth: 1500,
-      html2canvas: { scale: 0.34 },
+      margin: [10, 10, 10, 10],
+      windowWidth: 1600,
+      /* ↓↓↓  the critical flag so html2canvas keeps our hard <br> breaks  ↓↓↓ */
+      html2canvas: { scale: 0.35, letterRendering: true },
       autoPaging: 'text'
     });
   }
+/* 100 % single-column – every label on its own line, followed by the value */
+buildReportHtml(data: any[], count: number, query: string): string {
 
-  buildReportHtml(data: any[], count: number): string {
-    const style = `
-      <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body { margin:0; padding:0; font-family:Arial,sans-serif; background:#fff; color:#000; }
-        body { padding:15px; max-width:650px; margin:auto; }
-        h1 { font-size:16pt; margin-bottom:12px; }
-        .summary p { margin:8px 0; line-height:1.8; font-size:9pt; }
-        h2 { font-size:12pt; margin-top:24px; margin-bottom:6px; border-bottom:1px solid #ccc; padding-bottom:3px; }
-        .project { margin-bottom:30px; page-break-inside:avoid; }
-        .project p { margin:6px 0; line-height:1.8; font-size:9pt; }
-        .project strong { display:inline-block; min-width:120px; }
-        .mentions { background:#f5f5f5; padding:8px; border-left:4px solid #007bff; margin:8px 0; line-height:1.8; font-size:9pt; white-space:pre-wrap; }
-        a { color:#007bff; word-break:break-word; font-size:9pt; }
-      </style>
-    `;
-    const md = (t: string = '') => t
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\r?\n/g, '<br>')
-      .replace(/^- /gm, '• ');
+  const style = `
+    <style>
+      *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:Arial,Helvetica,sans-serif;color:#111;background:#fff;
+           max-width:960px;margin:auto;padding:36px 32px}
 
-    const projectsHtml = data.map(p => {
-      const meta = this.useApi
-        ? `
-          <p><strong>Last Researched:</strong> ${p.planning_public_updated || ''}</p>
-          <p><strong>Stage:</strong> ${p.planning_stage || ''}</p>
-          <p><strong>Link:</strong> ${p.planning_urlopen
-            ? `<a href="${p.planning_urlopen}" target="_blank">${p.planning_urlopen}</a>`
-            : ''}
-          </p>
-        `
-        : '';
+      /* header */
+      h1{font-size:24pt;margin-bottom:22px}
+      .summary p{font-size:13pt;line-height:1.7;margin:4px 0}
 
-      return `
-        <div class="project">
-          <h2>${p.project_id}: ${p.planning_title || ''}</h2>
-          ${meta}
-          <p><strong>Applicant Details:</strong></p>
-          <div class="mentions">${md(p.applicant_details)}</div>
-          <p><strong>Feature Mentions:</strong></p>
-          <div class="mentions">${md(p.feature_mentions)}</div>
+      /* project card */
+      .project{background:#f1f6ff;border-left:4px solid #0d6efd;
+               padding:22px 24px;margin:34px 0;page-break-inside:avoid}
+      .project h2{font-size:17pt;line-height:1.3;margin-bottom:8px}
+      .project a{font-size:13pt;color:#0d6efd;display:block;
+                 overflow-wrap:anywhere;margin-bottom:4px}
+
+      .label{font-weight:600;display:block;margin:8px 0 2px}
+
+      .feature{margin-top:16px;background:#eaf2ff;padding:16px 18px;
+               border-left:4px solid #0d6efd}
+      .feature ul{margin:6px 0 0;padding-left:22px;
+                  font-size:13pt;line-height:1.65;white-space:pre-wrap}
+      .feature li{margin-bottom:3px;text-indent:-6px}
+      .feature p{font-size:13pt;line-height:1.65;margin:8px 0 0}
+
+      @media print{body{padding:20pt}}
+    </style>
+  `;
+
+  /* helper to keep bold inside snippets */
+  const md = (txt = '') =>
+        txt.replace(/\*\*(.*?)\*\*/g, '<span class="label">$1</span>')
+           .replace(/\r?\n/g, '<br>');
+
+  /* build every project card */
+  const projectsHtml = data.map(p => `
+      <div class="project">
+        <h2>${p.project_id}: ${p.planning_title || 'N/A'}</h2>
+
+        ${p.bii_url ? `
+          <span class="label">BII URL:</span><br>
+          <a href="${p.bii_url}" target="_blank">${p.bii_url}</a><br>
+        ` : ''}
+
+        ${p.planning_urlopen ? `
+          <span class="label">Planning URL:</span><br>
+          <a href="${p.planning_urlopen}" target="_blank">${p.planning_urlopen}</a><br>
+        ` : ''}
+
+        <span class="label">Updated On:</span><br>${p.updated_on || 'N/A'}<br>
+        <span class="label">Stage:</span><br>${p.planning_stage || 'N/A'}<br>
+        <span class="label">Type:</span><br>${p.planning_category || 'N/A'}
+
+        <div class="feature">
+          <p class="label">Feature Mentions:</p>
+          <ul>${md(p.feature_mentions)
+                .replace(/•\s*/g, '<li>')
+                .replace(/\n/g, '</li>')}</ul>
         </div>
-      `;
-    }).join('');
+      </div>
+  `).join('');
 
-    return `
-      ${style}
-      <body>
-        <h1>Planning Application Report</h1>
-        <div class="summary">
-          <p><strong>Number of Projects:</strong> ${data.length}</p>
-          <p><strong>Documents Matched:</strong> ${count}</p>
-        </div>
-        ${projectsHtml}
-      </body>
-    `;
-  }
+  return `
+    ${style}
+    <body>
+      <h1>Planning Application Report</h1>
+      <div class="summary">
+        <p><span class="label">Query:</span> ${query}</p>
+        <p><span class="label">Number of Projects:</span> ${data.length}</p>
+        <p><span class="label">Documents Matched:</span> ${count}</p>
+      </div>
+      ${projectsHtml}
+    </body>
+  `;
+}
+
+
 
   formatResponse(txt?: string): string {
     return txt?.replace(/\n/g,'<br>').replace(/\t/g,'&nbsp;&nbsp;&nbsp;&nbsp;') || '';
@@ -297,7 +322,9 @@ export class QueryComponent implements OnInit {
     this.activeQueryId = this.activeQueryId === id ? null : id;
     this.commentText = '';
   }
-
+  get trustedReportHtml() {
+  return this.sanitizer.bypassSecurityTrustHtml(this.reportHtml);
+}
   async addComment(): Promise<void> {
     if (!this.commentText || !this.activeQueryId) return;
     await this.firestoreService.addComment(this.activeQueryId, this.commentText);
